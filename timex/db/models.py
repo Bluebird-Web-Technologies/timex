@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import datetime  # noqa: TCH003
 
-if TYPE_CHECKING:
-    import datetime
-
+from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
+from sqlalchemy import Table
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -28,6 +27,14 @@ class Project(Base):
     entries: Mapped[list[Entry]] = relationship(back_populates="project")
 
 
+entry_tag_association_table = Table(
+    "entry_tag_association_table",
+    Base.metadata,
+    Column("timed_entries_id", ForeignKey("timed_entries.id")),
+    Column("tags_id", ForeignKey("tags.id")),
+)
+
+
 class Entry(Base):
     __tablename__ = "timed_entries"
 
@@ -37,8 +44,7 @@ class Entry(Base):
     project: Mapped[Project] = relationship(back_populates="entries")
 
     tags: Mapped[list[Tag]] = relationship(
-        back_populates="entry",
-        cascade="all, delete-orphan",
+        secondary=entry_tag_association_table,
     )
 
     starts_at: Mapped[datetime.datetime] = mapped_column(
@@ -61,11 +67,3 @@ class Tag(Base):
 
     name: Mapped[str] = mapped_column(String(256))
     description: Mapped[str] = mapped_column(String(256))
-
-
-def start_engine():
-    from sqlalchemy import create_engine
-
-    engine = create_engine("sqlite:///timex.db", echo=True)
-
-    Base.metadata.create_all(engine)
