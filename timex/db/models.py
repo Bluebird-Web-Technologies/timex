@@ -24,27 +24,29 @@ class Project(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
 
-    entries: Mapped[list[Entry]] = relationship(back_populates="project")
+    activities: Mapped[list[Activity]] = relationship(back_populates="project")
 
 
-entry_tag_association_table = Table(
-    "entry_tag_association_table",
+activity_tag_association_table = Table(
+    "activity_tag_association_table",
     Base.metadata,
-    Column("timed_entries_id", ForeignKey("timed_entries.id")),
+    Column("activities_id", ForeignKey("activities.id")),
     Column("tags_id", ForeignKey("tags.id")),
 )
 
 
-class Entry(Base):
-    __tablename__ = "timed_entries"
+class Activity(Base):
+    __tablename__ = "activities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"))
-    project: Mapped[Project] = relationship(back_populates="entries")
+    project: Mapped[Project] = relationship(back_populates="activities")
+
+    description: Mapped[str] = mapped_column(String(256), nullable=True)
 
     tags: Mapped[list[Tag]] = relationship(
-        secondary=entry_tag_association_table,
+        secondary=activity_tag_association_table,
     )
 
     starts_at: Mapped[datetime.datetime] = mapped_column(
@@ -54,10 +56,11 @@ class Entry(Base):
 
     ends_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True),
+        nullable=True,
     )
 
     def __repr__(self) -> str:
-        return f"Entries #{self.id}"
+        return f"Activity #{self.id}"
 
 
 class Tag(Base):
@@ -66,4 +69,4 @@ class Tag(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     name: Mapped[str] = mapped_column(String(256))
-    description: Mapped[str] = mapped_column(String(256))
+    description: Mapped[str] = mapped_column(String(256), nullable=True)

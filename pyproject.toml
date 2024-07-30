@@ -14,6 +14,12 @@ click = "^8.1.7"
 [tool.poetry.group.dev.dependencies]
 ptpython = "^3.0.29"
 pre-commit = "^3.7.1"
+pytest = "^8.3.2"
+pytest-sugar = "^1.0.0"
+pytest-cov = "^5.0.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["timex"]
 
 [build-system]
 requires = ["poetry-core"]
