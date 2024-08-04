@@ -10,3 +10,15 @@ def time_dict(td):
         "minutes": minutes,
         "seconds": seconds,
     }
+
+
+def str_format_duration(td):
+    duration = time_dict(td)
+
+    duration_arr = []
+
+    for key, value in duration.items():
+        if value is not None and value > 0:
+            duration_arr.append(f"{value} {key}")
+
+    return ", ".join(duration_arr)
