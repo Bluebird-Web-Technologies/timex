@@ -37,7 +37,7 @@ class ProjectManager:
             raise ModelNotFoundError
 
         activity.is_active = False
-        activity.ends_at = datetime.datetime.now(tz=datetime.UTC)
+        activity.ends_at = datetime.datetime.now(tz=datetime.timezone.utc)
         self.db.commit()
 
         return activity.ends_at - activity.starts_at
@@ -61,7 +61,7 @@ class ProjectManager:
 
         activity = models.Activity(
             project=project,
-            starts_at=datetime.datetime.now(tz=datetime.UTC),
+            starts_at=datetime.datetime.now(tz=datetime.timezone.utc),
             description=description,
             is_active=True,
         )
@@ -81,6 +81,12 @@ class ProjectManager:
             activity.tags.extend(tags_to_add)
 
         self.db.commit()
+
+    def current_activity(self):
+        """Locate the currently engaged activity"""
+        return (
+            self.db.session().query(models.Activity).filter_by(is_active=True).first()
+        )
 
     def find_project(self, project_name: str) -> models.Project:
         project: models.Project = (

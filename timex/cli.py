@@ -1,9 +1,17 @@
+#!/home/ben/.cache/pypoetry/virtualenvs/timex-gL4yf6b8-py3.11/bin/python
+
+from datetime import datetime
+
 import click
 from exceptions import ActivityAlreadyActiveError
 from exceptions import ModelAlreadyExistsError
 from exceptions import ModelNotFoundError
 from manager import ProjectManager
-from utils import time_dict
+from utils import str_format_duration
+
+
+def info(message):
+    click.echo(message)
 
 
 def warn(message):
@@ -44,14 +52,7 @@ def stop():
         warn("There is not an activity to stop")
         return
 
-    duration = time_dict(duration)
-    duration_arr = []
-
-    for key, value in duration.items():
-        if value is not None and value > 0:
-            duration_arr.append(f"{value} {key}")
-
-    duration_str: str = ", ".join(duration_arr)
+    duration_str = str_format_duration(duration)
 
     click.echo("Activity stopped. Total time: " + duration_str)
 
@@ -65,7 +66,7 @@ def start(project_name, description, tags):
 
     try:
         pm.start_activity(project_name, description, processed_tags)
-        click.echo("Activity start! Go get it 🚀")
+        click.echo("Activity start! Go get it! 🚀")
     except ActivityAlreadyActiveError:
         message: str = (
             "There is already an active activity. "
@@ -74,10 +75,28 @@ def start(project_name, description, tags):
         warn(message)
 
 
+@click.command()
+def status():
+    current_activity = pm.current_activity()
+
+    # Early Exit
+    if current_activity is None:
+        info("You aren't current working on a project")
+        return
+
+    project = current_activity.project
+
+    duration = datetime.now(tz=datetime.timezone.utc) - current_activity.starts_at
+    duration_str = str_format_duration(duration)
+
+    info(f"You have been working on {project.name} for {duration_str}")
+
+
 cli.add_command(new)
 cli.add_command(list_projects)
 cli.add_command(start)
 cli.add_command(stop)
+cli.add_command(status)
 
 pm: ProjectManager = ProjectManager()
 
