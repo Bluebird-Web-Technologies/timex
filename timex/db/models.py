@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime  # noqa: TCH003
 
+from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
@@ -25,6 +26,9 @@ class Project(Base):
     name: Mapped[str] = mapped_column(String(50))
 
     activities: Mapped[list[Activity]] = relationship(back_populates="project")
+
+    def __repr__(self) -> str:
+        return self.name
 
 
 activity_tag_association_table = Table(
@@ -58,6 +62,8 @@ class Activity(Base):
         DateTime(timezone=True),
         nullable=True,
     )
+
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
 
     def __repr__(self) -> str:
         return f"Activity #{self.id}"
