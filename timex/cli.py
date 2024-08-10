@@ -95,11 +95,26 @@ def status():
     info(f"You have been working on {project.name} for {duration_str}")
 
 
+@click.command()
+@click.argument("project_name")
+def describe(project_name):
+    project = pm.find_project(project_name)
+
+    if not project:
+        warn(f"There is no project named {project_name}")
+        return
+
+    duration = str_format_duration(project.total_time())
+
+    info(f"You have spend {duration} working on {project_name}")
+
+
 cli.add_command(new)
 cli.add_command(list_projects)
 cli.add_command(start)
 cli.add_command(stop)
 cli.add_command(status)
+cli.add_command(describe)
 
 pm: ProjectManager = ProjectManager()
 

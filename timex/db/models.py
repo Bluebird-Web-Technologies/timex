@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import datetime  # noqa: TCH003
+import datetime
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -26,6 +26,12 @@ class Project(Base):
     name: Mapped[str] = mapped_column(String(50))
 
     activities: Mapped[list[Activity]] = relationship(back_populates="project")
+
+    def total_time(self):
+        return sum(
+            [a.duration() for a in self.activities if a.ends_at],
+            datetime.timedelta(),
+        )
 
     def __repr__(self) -> str:
         return self.name
@@ -64,6 +70,12 @@ class Activity(Base):
     )
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    def duration(self):
+        if not self.ends_at:
+            return None
+
+        return self.ends_at - self.starts_at
 
     def __repr__(self) -> str:
         return f"Activity #{self.id}"
