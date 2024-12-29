@@ -42,18 +42,18 @@ def test_duplicate_project(manager):
 
     session = db.session()
 
-    assert get_count(session, project_name) == 1
+    assert session_count_projects(session, project_name) == 1
 
     # TODO not sure why pytest.raises doesn't work
     correct_exception_raised = False
     try:
         manager.new_project(project_name)
     except Exception as e:  # noqa: BLE001
-        correct_exception_raised = type(e).__name__ == "ModelAlreadyExistsException"
+        correct_exception_raised = type(e).__name__ == "ModelAlreadyExistsError"
 
     assert correct_exception_raised
 
-    assert get_count(session, project_name) == 1
+    assert session_count_projects(session, project_name) == 1
 
 
 def test_list_all_projects(manager):
@@ -68,5 +68,5 @@ def test_list_all_projects(manager):
     assert len(projects) == len(project_names)
 
 
-def get_count(session, name) -> int:
-    session.query(models.Project).filter_by(name=name).count()
+def session_count_projects(session, name) -> int:
+    return session.query(models.Project).filter_by(name=name).count()
