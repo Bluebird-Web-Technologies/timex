@@ -8,6 +8,7 @@ from exceptions import ActivityAlreadyActiveError
 from exceptions import ModelAlreadyExistsError
 from exceptions import ModelNotFoundError
 from manager import ProjectManager
+from tui import HomeScreen
 from utils import str_format_duration
 
 
@@ -114,6 +115,12 @@ def describe(project_name):
     info(f"You have spend {duration} working on {project_name}")
 
 
+@click.command()
+def tui():
+    app = HomeScreen()
+    app.run()
+
+
 cli.add_command(new)
 cli.add_command(list_projects)
 cli.add_command(start)
@@ -121,6 +128,7 @@ cli.add_command(stop)
 cli.add_command(status)
 cli.add_command(describe)
 cli.add_command(init_fresh)
+cli.add_command(tui)
 
 pm: ProjectManager = ProjectManager()
 
