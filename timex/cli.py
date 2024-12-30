@@ -1,7 +1,7 @@
 #!/home/ben/.cache/pypoetry/virtualenvs/timex-gL4yf6b8-py3.11/bin/python
 
+from datetime import UTC
 from datetime import datetime
-from datetime import timezone
 
 import click
 from exceptions import ActivityAlreadyActiveError
@@ -22,6 +22,11 @@ def warn(message):
 @click.group()
 def cli():
     """A simple CLI for project management."""
+
+
+@click.command(name="init")
+def init_fresh() -> None:
+    pm.db.create_schema()
 
 
 @click.command()
@@ -85,11 +90,11 @@ def status():
         info("You aren't current working on a project")
         return
 
-    starts_at = current_activity.starts_at.replace(tzinfo=timezone.utc)
+    starts_at = current_activity.starts_at.replace(tzinfo=UTC)
 
     project = current_activity.project
 
-    duration = datetime.now(timezone.utc) - starts_at
+    duration = datetime.now(UTC) - starts_at
     duration_str = str_format_duration(duration)
 
     info(f"You have been working on {project.name} for {duration_str}")
@@ -115,6 +120,7 @@ cli.add_command(start)
 cli.add_command(stop)
 cli.add_command(status)
 cli.add_command(describe)
+cli.add_command(init_fresh)
 
 pm: ProjectManager = ProjectManager()
 
